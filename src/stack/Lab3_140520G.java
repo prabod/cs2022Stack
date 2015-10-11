@@ -5,11 +5,12 @@
  */
 package stack;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+
 
 /**
  *
@@ -21,14 +22,31 @@ public class Lab3_140520G  {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        CS2022LinkedStack<Integer> stack = new CS2022LinkedStack<Integer>();
-        stack.push(1);
-        stack.push(3);
-        System.out.println(stack.pop());
-        stack.push(2);
-        System.out.println(stack.pop());
-        CS2022PostfixCalculator cal = new CS2022PostfixCalculator();
-        System.out.println(cal.calculate("1 2 + 3 * 6 + 2 3 + /"));
+        CS2022LinkedStack<Object> stack = new CS2022LinkedStack<>();
+        File input = new File(args[0]); 											//array to hold the numbers
+		ArrayList<Object> arguments = new ArrayList<>();
+		try{
+                    Scanner inputFile = new Scanner(input);					//get the input
+                    while(inputFile.hasNextLine()){
+                        arguments.add(inputFile.next().split(" "));
+                    
+                    }
+                    for (int i = 0 ;i < arguments.size() ; i++){
+                        String[] funcArg = (String[]) arguments.get(i);
+                        if (funcArg[0] == "push"){
+                            stack.push(funcArg[1]);
+                        }
+                        else if (funcArg[0] == "pop"){
+                            System.out.println(stack.pop());
+                        }
+                        else if (funcArg[0] == "calculate"){
+                            stack.push(funcArg[1]);
+                        }
+                    }
+		}
+		catch (FileNotFoundException e) {
+                    System.out.println("No Such File");						//exception for no input file
+		}
     }
     
 }
@@ -36,29 +54,35 @@ public class Lab3_140520G  {
 class CS2022PostfixCalculator{
     private String input;
     private CS2022LinkedStack<Float> stack = new CS2022LinkedStack<Float>();
+    
     public float calculate(String s){
         
         String[] elements = s.split(" ");
-        
+        System.out.println(Arrays.toString(elements));
         for (int i = 0 ; i < elements.length ; i++){
-            if (isInteger(elements[i])){
+            boolean isInt = isInteger(elements[i]);
+            if (isInt){
                 stack.push(Float.parseFloat(elements[i]));
             }
             else{
-                ScriptEngineManager manager = new ScriptEngineManager();
-                ScriptEngine engine = manager.getEngineByName("JavaScript");
-                float no1 = stack.pop();
                 float no2 = stack.pop();
-                double newNumber = 0.0;
-                try {
-                    newNumber =  (double) engine.eval(no1 + elements[i] + no2);
-                    System.out.println(newNumber);
-                } catch (ScriptException ex) {
-                    Logger.getLogger(CS2022PostfixCalculator.class.getName()).log(Level.SEVERE, null, ex);
-                    System.out.println("Invalid operator");
+                float no1 = stack.pop();
+                float newNumber = 0;
+                if ("+".equals(elements[i])){
+                    newNumber = no1 + no2;
                 }
+                else if ("-".equals(elements[i])){
+                    newNumber = no1 - no2;
+                }
+                else if ("*".equals(elements[i])){
+                    newNumber = no1 * no2;
+                }
+                else if ("/".equals(elements[i])){
+                    newNumber = no1 / no2;
+                }
+                stack.push(newNumber);
+                System.out.println(newNumber+" = "+no1+ elements[i]+no2);
                 
-                stack.push((float)newNumber);
                 
             }
         }
@@ -203,9 +227,21 @@ class CS2022LinkedList<E> {
             currentNode = currentNode.getNext();
             index++;
         }
-        prevNode.setNext(currentNode.getNext());
-        decrementLength();
-
+        if (index != 1){
+            prevNode.setNext(currentNode.getNext());
+            decrementLength();
+        }
+        else{
+            if(1 < getLength()){
+                setHead(currentNode.getNext());
+                decrementLength();
+            }
+            else{
+                setHead(new Node<E>(null));
+                decrementLength();
+            }
+        }
+        
         return currentNode.getElement();
     }
 

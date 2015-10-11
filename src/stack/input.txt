@@ -1,0 +1,7 @@
+push 3,40,20
+pop
+pop
+push t
+pop
+calculate 1 2 + 3 * 6 +
+calculate 2 3 + 5 1 * /

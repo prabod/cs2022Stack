@@ -1,0 +1,5 @@
+pop 20
+pop 40
+pop t
+Calculate 1 2 + 3 * 6 +  = 15.0
+Calculate 2 3 + 5 1 * /  = 1.0

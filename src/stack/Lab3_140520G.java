@@ -7,9 +7,13 @@ package stack;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -24,29 +28,46 @@ public class Lab3_140520G  {
     public static void main(String[] args) {
         CS2022LinkedStack<Object> stack = new CS2022LinkedStack<>();
         File input = new File(args[0]); 											//array to hold the numbers
-		ArrayList<Object> arguments = new ArrayList<>();
+        ArrayList<Object> arguments = new ArrayList<>();
+        
 		try{
+                    PrintWriter writer = new PrintWriter("Result.out", "UTF-8");
                     Scanner inputFile = new Scanner(input);					//get the input
                     while(inputFile.hasNextLine()){
-                        arguments.add(inputFile.next().split(" "));
+                        arguments.add(inputFile.nextLine().split(" "));
                     
                     }
                     for (int i = 0 ;i < arguments.size() ; i++){
                         String[] funcArg = (String[]) arguments.get(i);
-                        if (funcArg[0] == "push"){
-                            stack.push(funcArg[1]);
-                        }
-                        else if (funcArg[0] == "pop"){
-                            System.out.println(stack.pop());
-                        }
-                        else if (funcArg[0] == "calculate"){
-                            stack.push(funcArg[1]);
+                        switch (funcArg[0]) {
+                            case "push":
+                                for (int j = 1;j<funcArg.length;j++){
+                                    stack.push(funcArg[j]);
+                                }
+                                break;
+                            case "pop":
+                                Object poped = stack.pop();
+                                System.out.println("pop " + poped);
+                                writer.println("pop " + poped);
+                                break;
+                            case "calculate":
+                                CS2022PostfixCalculator cal = new CS2022PostfixCalculator();
+                                StringBuilder strBuilder = new StringBuilder();
+                                for (int k = 1; k < funcArg.length; k++) {
+                                    strBuilder.append(funcArg[k]).append(" ");
+                                }
+                                String newString = strBuilder.toString();
+                                System.out.println("Calculate " + newString + " = "+cal.calculate(newString));
+                                writer.println("Calculate " + newString + " = "+cal.calculate(newString));
+                                break;
                         }
                     }
+                    writer.close();
 		}
 		catch (FileNotFoundException e) {
                     System.out.println("No Such File");						//exception for no input file
-		}
+		} catch (UnsupportedEncodingException ex) {
+        }
     }
     
 }
@@ -58,7 +79,6 @@ class CS2022PostfixCalculator{
     public float calculate(String s){
         
         String[] elements = s.split(" ");
-        System.out.println(Arrays.toString(elements));
         for (int i = 0 ; i < elements.length ; i++){
             boolean isInt = isInteger(elements[i]);
             if (isInt){
@@ -81,7 +101,6 @@ class CS2022PostfixCalculator{
                     newNumber = no1 / no2;
                 }
                 stack.push(newNumber);
-                System.out.println(newNumber+" = "+no1+ elements[i]+no2);
                 
                 
             }
